@@ -1,0 +1,78 @@
+{
+    "name": "pollora/metabox-bridge",
+    "description": "Connect Pollora to Meta Box data: migrations and Eloquent models for MB Custom Table.",
+    "type": "library",
+    "keywords": [
+        "wordpress",
+        "meta-box",
+        "custom-tables",
+        "eloquent",
+        "migrations",
+        "pollora"
+    ],
+    "homepage": "https://github.com/Pollora/metabox-bridge",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Amphibee",
+            "email": "contact@amphibee.fr"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/Pollora/metabox-bridge/issues",
+        "source": "https://github.com/Pollora/metabox-bridge"
+    },
+    "require": {
+        "php": "^8.3",
+        "pollora/framework": "^13.0",
+        "pollora/metabox": "^2.6"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.22",
+        "orchestra/testbench": "^11.0",
+        "pestphp/pest": "^3.0 || ^4.0",
+        "phpstan/phpstan": "^2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pollora\\MetaboxBridge\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Pollora\\MetaboxBridge\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Pollora\\MetaboxBridge\\MetaboxBridgeServiceProvider"
+            ]
+        },
+        "branch-alias": {
+            "dev-main": "1.x-dev"
+        }
+    },
+    "scripts": {
+        "test": [
+            "@test:unit",
+            "@phpstan",
+            "@lint:check"
+        ],
+        "test:unit": "pest",
+        "phpstan": "phpstan analyse",
+        "phpstan:ci": "phpstan analyse --no-progress",
+        "lint": "pint",
+        "lint:check": "pint --test"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "cweagans/composer-patches": true,
+            "wikimedia/composer-merge-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

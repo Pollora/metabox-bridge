@@ -1,0 +1,7 @@
+parameters:
+    level: 5
+    paths:
+        - src
+    ignoreErrors:
+        # Traits provided to applications are not used inside the package.
+        - identifier: trait.unused
