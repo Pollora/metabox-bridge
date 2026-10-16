@@ -13,7 +13,7 @@
 
 Metabox Bridge connects a [Pollora](https://pollora.dev) application to the data of [Meta Box](https://metabox.io). Field values that [MB Custom Table](https://docs.metabox.io/extensions/mb-custom-table/) stores in custom tables become plain Laravel: the tables are created by migrations, and the rows are read and written with Eloquent models that follow the Meta Box conventions.
 
-It completes [pollora/metabox](https://github.com/Pollora/metabox), which declares the meta boxes, the fields and the custom models.
+It completes [pollora/metabox](https://github.com/Pollora/metabox), which declares the field groups, the fields and the custom models.
 
 > Part of [Pollora](https://pollora.dev), the Laravel framework for WordPress. It requires Pollora: in a WordPress project without Pollora, use [pollora/metabox](https://github.com/Pollora/metabox) alone.
 
@@ -41,7 +41,7 @@ Schema::create('events', function (Blueprint $table) {
 
 ```php
 // The fields, with pollora/metabox
-Metabox::make('Event details', 'event_details')
+FieldGroup::make('Event details', 'event_details')
     ->location(Location::postTypes('event'))
     ->customTable(EventDetails::class)
     ->fields([
