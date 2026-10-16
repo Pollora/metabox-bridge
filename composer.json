@@ -25,7 +25,7 @@
     "require": {
         "php": "^8.3",
         "pollora/framework": "^13.0",
-        "pollora/metabox": "^2.6"
+        "pollora/metabox": "^2.6 || ^3.0"
     },
     "require-dev": {
         "laravel/pint": "^1.22",

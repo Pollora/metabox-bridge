@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 - Unreleased
+
+### Changed
+
+- Supports pollora/metabox 3.0, where the `Metabox` class is renamed `FieldGroup`. The README examples use `FieldGroup`.
+
 ## 1.0.0 - 2026-10-07
 
 ### Added
