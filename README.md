@@ -13,6 +13,8 @@
 
 Metabox Bridge connects a [Pollora](https://pollora.dev) application to the data of [Meta Box](https://metabox.io). Field values that [MB Custom Table](https://docs.metabox.io/extensions/mb-custom-table/) stores in custom tables become plain Laravel: the tables are created by migrations, and the rows are read and written with Eloquent models that follow the Meta Box conventions.
 
+It also discovers the field groups, blocks and settings pages declared with the [pollora/metabox attributes](https://github.com/Pollora/metabox/blob/main/docs/attributes.md), like Pollora discovers post types: no list of classes to maintain, defaults for the whole site, and blocks rendered with Blade views.
+
 It completes [pollora/metabox](https://github.com/Pollora/metabox), which declares the field groups, the fields and the custom models.
 
 > Part of [Pollora](https://pollora.dev), the Laravel framework for WordPress. It requires Pollora: in a WordPress project without Pollora, use [pollora/metabox](https://github.com/Pollora/metabox) alone.
@@ -23,7 +25,7 @@ It completes [pollora/metabox](https://github.com/Pollora/metabox), which declar
 composer require pollora/metabox-bridge
 ```
 
-Requires PHP 8.3+, Pollora 13, and the [Meta Box](https://wordpress.org/plugins/meta-box/) plugin with MB Custom Table (included in Meta Box AIO). The service provider is discovered automatically.
+Requires PHP 8.3+, Pollora 13, pollora/metabox 3.1+, and the [Meta Box](https://wordpress.org/plugins/meta-box/) plugin, with MB Custom Table for custom tables and MB Blocks for blocks (included in Meta Box AIO). The service provider is discovered automatically.
 
 ## Quick start
 
@@ -152,6 +154,81 @@ protected $casts = ['speakers' => SerializedArray::class];
 MB Custom Table caches the rows in the WordPress object cache. Both base models remove a row from that cache when it is saved or deleted, so that `rwmb_meta()` returns the new values. Queries that do not fire model events, such as `EventDetails::where(...)->update([...])`, do not clear it: call `flushMetaboxCache()` on each row, or flush the cache group.
 
 - **`flushMetaboxCache()`**: Removes the row from the MB Custom Table cache.
+
+## Attributes
+
+The classes of the application declared with `#[FieldGroup]`, `#[Block]` or `#[SettingsPage]` are discovered and registered, once each, however many times Pollora runs its discovery:
+
+```php
+use App\Cms\PostTypes\Event;
+use Pollora\Metabox\Attributes\Block;
+use Pollora\Metabox\Attributes\Block\Icon;
+use Pollora\Metabox\Attributes\FieldGroup;
+use Pollora\Metabox\Attributes\FieldGroup\PostTypes;
+
+#[FieldGroup('Event details')]
+#[PostTypes(Event::class)]
+final class EventFields
+{
+    public function fields(): array
+    {
+        return [Text::make('Venue', 'venue')];
+    }
+}
+
+#[Block('Advanced quote', 'advanced-quote')]
+#[Icon('align-center')]
+final class AdvancedQuote
+{
+    public function fields(): array
+    {
+        return [SingleImage::make('Image', 'image'), Text::make('Quote', 'quote')];
+    }
+}
+```
+
+- The classes are created by the container: their constructor can receive dependencies.
+- A class declared with Pollora's `#[PostType]` or `#[Taxonomy]` can be a target: `#[PostTypes(Event::class)]` uses the slug Pollora registers.
+- An invalid declaration, such as an ID used twice, is reported to the Laravel log without preventing the other classes from being registered.
+- In production, Pollora caches the discovered classes: run `php artisan discovery:clear` after adding one.
+
+### Defaults
+
+Publish the configuration to set the defaults of the site:
+
+```bash
+php artisan vendor:publish --tag=metabox-config
+```
+
+```php
+// config/metabox.php
+return [
+    'blocks' => [
+        'category' => 'theme/site', // category of every block
+        'mode' => 'preview',        // edit or preview
+        'views' => 'blocks',        // views of the blocks, null to only render blocks with #[View]
+        'namespace' => 'App\\Cms\\Blocks',
+    ],
+    'field_groups' => [
+        'priority' => 'high',
+    ],
+];
+```
+
+The attributes of a class, and its `configuring()` method, override these defaults.
+
+### Block views
+
+A block is rendered with the Blade view named after its ID: `blocks.advanced-quote`. The sub-namespaces of its class below `blocks.namespace` are added in kebab case: the block `cta` of `App\Cms\Blocks\Home\CallToAction` is rendered with `blocks.home.cta`. `#[View('cards.download')]` sets another view.
+
+The view receives `$attributes`, the field values as stored (the ID of an image), `$block`, the attributes of the block with the formatted values, `$isPreview` and `$postId`:
+
+```blade
+<blockquote>
+    {!! wp_get_attachment_image($attributes['image'], 'medium') !!}
+    <p>{{ $attributes['quote'] }}</p>
+</blockquote>
+```
 
 ## Multisite
 
