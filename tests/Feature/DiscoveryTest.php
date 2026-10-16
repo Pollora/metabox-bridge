@@ -30,16 +30,26 @@ beforeEach(function () {
     Registrar::integrate(new PolloraIntegration($this->app, $this->app['config']));
 });
 
-function engine(): DiscoveryEngine
+/**
+ * The Pollora discovery engine. Pollora 13.36 moved it to pollora/discovery, with another constructor.
+ */
+function engine(): DiscoveryEngineInterface
 {
-    app()->singleton(DebugDetectorInterface::class, fn () => new class implements DebugDetectorInterface
-    {
-        public function isDebugMode(): bool
-        {
-            return true;
+    app()->singleton(DiscoveryEngineInterface::class, function ($app) {
+        $constructor = (new ReflectionMethod(DiscoveryEngine::class, '__construct'))->getParameters();
+
+        if ($constructor[0]->getName() !== 'container') {
+            return new DiscoveryEngine;
         }
+
+        return new DiscoveryEngine($app, new class implements DebugDetectorInterface
+        {
+            public function isDebugMode(): bool
+            {
+                return true;
+            }
+        });
     });
-    app()->singleton(DiscoveryEngineInterface::class, fn ($app) => new DiscoveryEngine($app, $app->make(DebugDetectorInterface::class)));
 
     return app(DiscoveryEngineInterface::class);
 }
