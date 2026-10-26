@@ -1,0 +1,12 @@
+{
+    "version": 1,
+    "surface": {
+        "config:metabox.blocks": "key",
+        "config:metabox.blocks.category": "key",
+        "config:metabox.blocks.mode": "key",
+        "config:metabox.blocks.namespace": "key",
+        "config:metabox.blocks.views": "key",
+        "config:metabox.field_groups": "key",
+        "config:metabox.field_groups.priority": "key"
+    }
+}
