@@ -14,3 +14,5 @@ coverage.xml
 .vscode/
 phpunit.xml
 patches.lock.json
+# Pollora harness reports
+/.harness/
