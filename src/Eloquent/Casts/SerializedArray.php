@@ -24,7 +24,7 @@ final class SerializedArray implements CastsAttributes
             return $value;
         }
 
-        $array = unserialize($value, ['allowed_classes' => false]);
+        $array = unserialize($value, ['allowed_classes' => false]); // nosemgrep -- allowed_classes is false: no object can be instantiated
 
         return is_array($array) ? $array : $value;
     }
