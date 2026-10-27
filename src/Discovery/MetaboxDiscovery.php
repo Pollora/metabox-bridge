@@ -26,7 +26,7 @@ final class MetaboxDiscovery implements DiscoveryInterface
 {
     use IsDiscovery;
 
-    private const ATTRIBUTES = [FieldGroup::class, Block::class, SettingsPage::class];
+    private const array ATTRIBUTES = [FieldGroup::class, Block::class, SettingsPage::class];
 
     public function discover(DiscoveryLocationInterface $location, DiscoveredStructure $structure, ?ReflectionCacheInterface $reflectionCache = null): void
     {
