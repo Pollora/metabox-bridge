@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- The architecture rules (`tests/Arch.php`) now run as the `Architecture` suite of `phpunit.xml.dist`.
+
 ## 1.1.0 - 2026-10-16
 
 ### Added
