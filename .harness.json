@@ -2,6 +2,7 @@
     "profile": "integration",
     "mode": "enforce",
     "ratchet": {
+        "type_coverage": 88.4,
         "phpstan_level": 5,
         "phpstan_baseline": 0,
         "coverage": 93.33,
