@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pollora\MetaboxBridge;
 
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\ColumnDefinition;
 use Illuminate\Support\ServiceProvider;
@@ -36,7 +37,7 @@ class MetaboxBridgeServiceProvider extends ServiceProvider
     {
         $this->publishes([__DIR__.'/../config/metabox.php' => $this->app->configPath('metabox.php')], 'metabox-config');
 
-        Registrar::integrate(new PolloraIntegration($this->app, $this->app->make('config')));
+        Registrar::integrate(new PolloraIntegration($this->app, $this->app->make(Repository::class)));
 
         Blueprint::macro('metaboxObject', function (): ColumnDefinition {
             /** @var Blueprint $this */

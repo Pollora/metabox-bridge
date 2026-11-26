@@ -11,12 +11,15 @@ use Illuminate\Database\Eloquent\Model;
  * An array stored serialized by MB Custom Table: the value of a cloneable or
  * multiple field, or of a group.
  *
- * @implements CastsAttributes<array|string|null, array|string|null>
+ * @implements CastsAttributes<array<mixed>|string|null, array<mixed>|string|null>
  */
 final class SerializedArray implements CastsAttributes
 {
     /**
      * Unserialize the arrays stored by Meta Box. Objects are never unserialized.
+     *
+     * @param  array<string, mixed>  $attributes
+     * @return array<mixed>|string|null
      */
     public function get(Model $model, string $key, mixed $value, array $attributes): array|string|null
     {
@@ -25,7 +28,11 @@ final class SerializedArray implements CastsAttributes
             return (string) $value;
         }
 
-        if (! is_string($value) || ! str_starts_with($value, 'a:')) {
+        if (! is_string($value)) {
+            return is_array($value) ? $value : null;
+        }
+
+        if (! str_starts_with($value, 'a:')) {
             return $value;
         }
 
@@ -36,6 +43,9 @@ final class SerializedArray implements CastsAttributes
 
     /**
      * Serialize arrays, like Meta Box.
+     *
+     * @param  array<mixed>|string|null  $value
+     * @param  array<string, mixed>  $attributes
      */
     public function set(Model $model, string $key, mixed $value, array $attributes): ?string
     {

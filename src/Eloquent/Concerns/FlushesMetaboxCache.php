@@ -24,7 +24,9 @@ trait FlushesMetaboxCache
      */
     public function flushMetaboxCache(): void
     {
-        if (! function_exists('wp_cache_delete') || ! $this->getKey()) {
+        $key = $this->getKey();
+
+        if (! function_exists('wp_cache_delete') || ! is_scalar($key) || ! $key) {
             return;
         }
 
@@ -32,6 +34,6 @@ trait FlushesMetaboxCache
         // which is the connection prefix in Pollora.
         $table = $this->getConnection()->getTablePrefix().$this->getTable();
 
-        wp_cache_delete((int) $this->getKey(), "rwmb_{$table}_table_data");
+        wp_cache_delete((int) $key, "rwmb_{$table}_table_data");
     }
 }
