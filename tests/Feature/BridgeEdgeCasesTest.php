@@ -236,6 +236,14 @@ test('values which are not serialized arrays are returned unchanged', function (
         ->and($cast->get($model, 'speakers', 'xa:0:{}', []))->toBe('xa:0:{}');
 });
 
+test('a column the database returns as a number is read as text', function () {
+    $cast = new SerializedArray;
+    $model = new NoKeyRow;
+
+    expect($cast->get($model, 'speakers', 5, []))->toBe('5')
+        ->and($cast->get($model, 'speakers', 1.5, []))->toBe('1.5');
+});
+
 // --- FlushesMetaboxCache
 
 test('a row without a key does not touch the cache', function () {

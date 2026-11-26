@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+
+- The `SerializedArray` cast no longer throws a `TypeError` when the database returns a number for the column: it is read as text.
+
 ### Changed
 
 - The architecture rules (`tests/Arch.php`) now run as the `Architecture` suite of `phpunit.xml.dist`.
