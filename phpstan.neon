@@ -3,7 +3,7 @@ includes:
     # Larastan is not included yet: it boots a Laravel application and this package's test stubs cannot be loaded with it
 
 parameters:
-    level: 7
+    level: 8
     paths:
         - src
     ignoreErrors:
