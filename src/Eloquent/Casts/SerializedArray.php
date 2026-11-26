@@ -20,6 +20,11 @@ final class SerializedArray implements CastsAttributes
      */
     public function get(Model $model, string $key, mixed $value, array $attributes): array|string|null
     {
+        // A numeric column gives an int or a float: read it as text, as set() writes it.
+        if (is_int($value) || is_float($value)) {
+            return (string) $value;
+        }
+
         if (! is_string($value) || ! str_starts_with($value, 'a:')) {
             return $value;
         }
