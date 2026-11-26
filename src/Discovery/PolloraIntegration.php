@@ -79,7 +79,8 @@ final readonly class PolloraIntegration implements Integration
         }
 
         $views = $this->text('metabox.blocks.views');
-        $namespace = trim($this->config->get('metabox.blocks.namespace') === null ? '' : $this->text('metabox.blocks.namespace'), '\\').'\\';
+        $configured = $this->config->get('metabox.blocks.namespace') === null ? null : $this->text('metabox.blocks.namespace');
+        $namespace = trim((string) $configured, '\\').'\\';
         $folders = [];
 
         if ($namespace !== '\\' && str_starts_with($class, $namespace)) {

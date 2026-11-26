@@ -8,6 +8,8 @@ use Pollora\Discovery\Domain\Models\DirectoryLocation;
 use Pollora\Metabox\Attributes\FieldGroup as FieldGroupAttribute;
 use Pollora\Metabox\Attributes\Registrar;
 use Pollora\Metabox\Block;
+use Pollora\Metabox\Enums\BlockMode;
+use Pollora\Metabox\Enums\Priority;
 use Pollora\Metabox\FieldGroup;
 use Pollora\Metabox\SettingsPage;
 use Pollora\MetaboxBridge\Discovery\MetaboxDiscovery;
@@ -293,16 +295,41 @@ test('booting connects the Pollora integration to the declarations', function ()
 
 // --- Values of the wrong type
 
-test('a configuration value that is not text is reported', function (string $key) {
+test('a configuration value that is not text is reported, with its key and type', function (string $key) {
     $this->app['config']->set($key, ['not', 'text']);
+    $builder = $key === 'metabox.field_groups.priority' ? FieldGroup::make('Group', 'group') : Block::make('Block', 'block');
 
-    expect(function () use ($key) {
-        $integration = integration();
-        $key === 'metabox.field_groups.priority'
-            ? $integration->configure(FieldGroup::make('Group', 'group'), 'App\\Group')
-            : $integration->configure(Block::make('Block', 'block'), 'App\\Block');
-    })->toThrow(InvalidArgumentException::class, $key);
+    expect(fn () => integration()->configure($builder, 'App\\Thing'))
+        ->toThrow(fn (InvalidArgumentException $exception) => expect($exception->getMessage())->toBe("The configuration value '{$key}' must be a string, array given."));
 })->with(['metabox.blocks.category', 'metabox.blocks.mode', 'metabox.field_groups.priority']);
+
+test('the mode of a block and the priority of a field group can be given as enum cases or an integer', function () {
+    $this->app['config']->set('metabox.blocks.category', null);
+    $this->app['config']->set('metabox.blocks.mode', BlockMode::Preview);
+    $block = Block::make('Block', 'block');
+    integration()->configure($block, 'App\\Block');
+
+    $this->app['config']->set('metabox.field_groups.priority', Priority::Low);
+    $group = FieldGroup::make('Group', 'group');
+    integration()->configure($group, 'App\\Group');
+
+    // An integer is the position of a Customizer section.
+    $this->app['config']->set('metabox.field_groups.priority', 20);
+    $section = FieldGroup::make('Section', 'section')->customizer();
+    integration()->configure($section, 'App\\Section');
+
+    expect($block->build()['mode'])->toBe('preview')
+        ->and($group->build()['priority'])->toBe('low')
+        ->and($section->build()['priority'])->toBe(20);
+});
+
+test('a row whose key is not a scalar does not touch the cache', function () {
+    $row = new NoKeyRow;
+    $row->forceFill(['ID' => ['7']]);
+    $row->flushMetaboxCache();
+
+    expect($GLOBALS['wp_cache_deleted'])->toBe([]);
+});
 
 test('a value of the database that is neither text, number nor array is read as null', function () {
     expect((new SerializedArray)->get(new NoKeyRow, 'speakers', new stdClass, []))->toBeNull();
