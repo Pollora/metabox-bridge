@@ -8,10 +8,13 @@ use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Pollora\Attributes\PostType;
 use Pollora\Attributes\Taxonomy;
 use Pollora\Metabox\Attributes\Contracts\Integration;
 use Pollora\Metabox\Block;
+use Pollora\Metabox\Enums\BlockMode;
+use Pollora\Metabox\Enums\Priority;
 use Pollora\Metabox\FieldGroup;
 use Pollora\Metabox\SettingsPage;
 use ReflectionClass;
@@ -35,19 +38,19 @@ final readonly class PolloraIntegration implements Integration
     public function configure(FieldGroup|SettingsPage $builder, string $class): void
     {
         if ($builder instanceof Block) {
-            if (($category = $this->config->get('metabox.blocks.category')) !== null) {
-                $builder->category($category);
+            if ($this->config->get('metabox.blocks.category') !== null) {
+                $builder->category($this->text('metabox.blocks.category'));
             }
 
             if (($mode = $this->config->get('metabox.blocks.mode')) !== null) {
-                $builder->mode($mode);
+                $builder->mode($mode instanceof BlockMode ? $mode : $this->text('metabox.blocks.mode'));
             }
 
             return;
         }
 
         if ($builder instanceof FieldGroup && ($priority = $this->config->get('metabox.field_groups.priority')) !== null) {
-            $builder->priority($priority);
+            $builder->priority($priority instanceof Priority || is_int($priority) ? $priority : $this->text('metabox.field_groups.priority'));
         }
     }
 
@@ -71,13 +74,12 @@ final readonly class PolloraIntegration implements Integration
 
     public function view(string $class, string $blockId): ?string
     {
-        $views = $this->config->get('metabox.blocks.views');
-
-        if ($views === null) {
+        if ($this->config->get('metabox.blocks.views') === null) {
             return null;
         }
 
-        $namespace = trim((string) $this->config->get('metabox.blocks.namespace'), '\\').'\\';
+        $views = $this->text('metabox.blocks.views');
+        $namespace = trim($this->config->get('metabox.blocks.namespace') === null ? '' : $this->text('metabox.blocks.namespace'), '\\').'\\';
         $folders = [];
 
         if ($namespace !== '\\' && str_starts_with($class, $namespace)) {
@@ -90,5 +92,17 @@ final readonly class PolloraIntegration implements Integration
     public function render(string $view, array $data): string
     {
         return $this->container->make(Factory::class)->make($view, $data)->render();
+    }
+
+    /**
+     * A configuration value that must be text.
+     *
+     * @throws InvalidArgumentException If config/metabox.php gives something else.
+     */
+    private function text(string $key): string
+    {
+        $value = $this->config->get($key);
+
+        return is_string($value) ? $value : throw new InvalidArgumentException("The configuration value '{$key}' must be a string, ".get_debug_type($value).' given.');
     }
 }

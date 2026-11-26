@@ -290,3 +290,20 @@ test('booting connects the Pollora integration to the declarations', function ()
 
     expect(apply_filters('rwmb_meta_boxes', [])[0]['category'])->toBe('theme/site');
 });
+
+// --- Values of the wrong type
+
+test('a configuration value that is not text is reported', function (string $key) {
+    $this->app['config']->set($key, ['not', 'text']);
+
+    expect(function () use ($key) {
+        $integration = integration();
+        $key === 'metabox.field_groups.priority'
+            ? $integration->configure(FieldGroup::make('Group', 'group'), 'App\\Group')
+            : $integration->configure(Block::make('Block', 'block'), 'App\\Block');
+    })->toThrow(InvalidArgumentException::class, $key);
+})->with(['metabox.blocks.category', 'metabox.blocks.mode', 'metabox.field_groups.priority']);
+
+test('a value of the database that is neither text, number nor array is read as null', function () {
+    expect((new SerializedArray)->get(new NoKeyRow, 'speakers', new stdClass, []))->toBeNull();
+});

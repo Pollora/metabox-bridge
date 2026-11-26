@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pollora\MetaboxBridge\Discovery;
 
+use InvalidArgumentException;
 use Pollora\Discovery\Domain\Contracts\DiscoveryInterface;
 use Pollora\Discovery\Domain\Contracts\DiscoveryLocationInterface;
 use Pollora\Discovery\Domain\Contracts\ReflectionCacheInterface;
@@ -51,6 +52,11 @@ final class MetaboxDiscovery implements DiscoveryInterface
     {
         foreach ($this->getItems() as $class) {
             try {
+                if (! is_string($class) || ! class_exists($class)) {
+                    // The message of the Registrar, which only takes a class that exists.
+                    throw new InvalidArgumentException(sprintf("The class '%s' does not exist.", is_string($class) ? $class : get_debug_type($class)));
+                }
+
                 Registrar::register($class);
             } catch (Throwable $exception) {
                 report($exception);

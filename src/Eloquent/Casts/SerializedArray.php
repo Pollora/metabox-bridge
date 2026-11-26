@@ -28,7 +28,11 @@ final class SerializedArray implements CastsAttributes
             return (string) $value;
         }
 
-        if (! is_string($value) || ! str_starts_with($value, 'a:')) {
+        if (! is_string($value)) {
+            return is_array($value) ? $value : null;
+        }
+
+        if (! str_starts_with($value, 'a:')) {
             return $value;
         }
 
