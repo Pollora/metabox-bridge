@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.1 - 2026-11-27
 
 ### Fixed
 
@@ -8,6 +8,7 @@
 
 ### Changed
 
+- A value of `config/metabox.php` that is not of the expected type (`blocks.category`, `blocks.mode`, `blocks.views`, `blocks.namespace`, `field_groups.priority`) raises an `InvalidArgumentException` naming the key.
 - The architecture rules (`tests/Arch.php`) now run as the `Architecture` suite of `phpunit.xml.dist`.
 
 ## 1.1.0 - 2026-10-16
